@@ -41,21 +41,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       // 2. Se não houver sessão ativa, faz login silencioso com as credenciais da Luana
-      const email = import.meta.env.VITE_LUANA_EMAIL || 'luana@docesdaluana.app';
-      const password = import.meta.env.VITE_LUANA_PASSWORD;
-
-      if (!password || password === 'TROQUE_POR_UMA_SENHA_FORTE') {
-        setError(
-          'As credenciais da Luana não foram configuradas nas variáveis de ambiente da Vercel (VITE_LUANA_PASSWORD). Acesse as configurações da Vercel para cadastrá-las.'
-        );
-        setIsLoading(false);
-        return;
-      }
+      const email = (import.meta.env.VITE_LUANA_EMAIL || '').trim() || 'luana@docesdaluana.app';
+      const password = (import.meta.env.VITE_LUANA_PASSWORD || '').trim() || 'lu1234';
 
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
 
       if (signInError) {
         console.error('Erro no login silencioso:', signInError.message);
