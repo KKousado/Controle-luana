@@ -40,18 +40,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // 2. Se não houver sessão ativa, faz login silencioso com as variáveis de ambiente de Luana
-      const email = import.meta.env.VITE_LUANA_EMAIL;
+      // 2. Se não houver sessão ativa, faz login silencioso com as credenciais da Luana
+      const email = import.meta.env.VITE_LUANA_EMAIL || 'luana@docesdaluana.app';
       const password = import.meta.env.VITE_LUANA_PASSWORD;
 
-      if (!email || !password || password === 'TROQUE_POR_UMA_SENHA_FORTE') {
-        // Se as credenciais ainda não foram trocadas no .env, informar amigavelmente
-        console.warn('Credenciais VITE_LUANA_EMAIL ou VITE_LUANA_PASSWORD não preenchidas no .env');
+      if (!password || password === 'TROQUE_POR_UMA_SENHA_FORTE') {
+        setError(
+          'As credenciais da Luana não foram configuradas nas variáveis de ambiente da Vercel (VITE_LUANA_PASSWORD). Acesse as configurações da Vercel para cadastrá-las.'
+        );
+        setIsLoading(false);
+        return;
       }
 
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email || 'luana@docesdaluana.app',
-        password: password || '',
+        email,
+        password,
       });
 
       if (signInError) {

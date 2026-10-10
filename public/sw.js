@@ -1,5 +1,4 @@
-# self.addEventListener('fetch', () => {});
-const CACHE_NAME = 'doces-da-luana-v1';
+const CACHE_NAME = 'doces-da-luana-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -34,20 +33,22 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Apenas intercepta requisições de navegação ou estáticos locais
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith(self.location.origin)) return;
 
+  // Para requisições de assets com hash (ex: /assets/*.js, *.css), tenta rede primeiro para não congelar versão antiga
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return (
-        cachedResponse ||
-        fetch(event.request).catch(() => {
+    fetch(event.request)
+      .then((response) => {
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
           if (event.request.mode === 'navigate') {
             return caches.match('/index.html');
           }
-        })
-      );
-    })
+        });
+      })
   );
 });
