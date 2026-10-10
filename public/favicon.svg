@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF2D55" />
+      <stop offset="50%" stop-color="#FF9500" />
+      <stop offset="100%" stop-color="#C67D34" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#grad)" />
+  <!-- Cupcake / Cake SVG Icon -->
+  <g fill="#FFFFFF" transform="translate(106, 106) scale(0.6)">
+    <path d="M250 40 C170 40 130 90 120 140 C80 150 60 190 70 230 C80 270 120 280 150 280 L350 280 C380 280 420 270 430 230 C440 190 420 150 380 140 C370 90 330 40 250 40 Z" />
+    <path d="M140 310 L170 460 C173 475 186 486 202 486 L298 486 C314 486 327 475 330 460 L360 310 Z" opacity="0.9" />
+    <!-- Cherry on top -->
+    <circle cx="250" cy="50" r="28" fill="#FFFFFF" />
+  </g>
+</svg>
