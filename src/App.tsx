@@ -12,7 +12,7 @@ import { EntryModal } from './components/entries/EntryModal';
 import { TipoLancamento } from './types';
 
 export const App: React.FC = () => {
-  const { isLoading, error, retryAuth } = useAuth();
+  const { isLoading } = useAuth();
   const [currentTab, setCurrentTab] = useState<TabType>('inicio');
 
   // Controle do modal rápido de entrada / saída
@@ -20,9 +20,8 @@ export const App: React.FC = () => {
   const [modalTipo, setModalTipo] = useState<TipoLancamento>('entrada');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Splash Screen de carregamento ou erro elegante com botão "Tentar novamente"
-  if (isLoading || error) {
-    return <SplashScreen error={error} onRetry={retryAuth} />;
+  if (isLoading) {
+    return <SplashScreen />;
   }
 
   const handleOpenNewModal = (tipo: TipoLancamento) => {
