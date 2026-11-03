@@ -40,28 +40,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // 2. Se não houver sessão ativa, faz login silencioso com as credenciais da Luana
-      const email = (import.meta.env.VITE_LUANA_EMAIL || '').trim() || 'luana@docesdaluana.app';
-      const password = (import.meta.env.VITE_LUANA_PASSWORD || '').trim() || 'lu1234';
-
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-
-      if (signInError) {
-        console.error('Erro no login silencioso:', signInError.message);
-        setError(signInError.message);
-        setIsLoading(false);
-        return;
-      }
-
-      if (authData.session && authData.user) {
-        setSession(authData.session);
-        setUser(authData.user);
-        await inicializarDados(authData.user.id);
-      }
+      // Sem sessão, a tela de login deve orientar o usuário; nunca usamos credenciais
+      // padrão embutidas no frontend, pois elas quebram no deploy e expõem a conta.
+      setError('Sua sessão expirou. Faça login novamente para continuar.');
     } catch (err: any) {
       console.error('Erro de conexão ou autenticação:', err);
       setError(err?.message || 'Falha ao conectar aos serviços da Luana. Verifique sua conexão.');
