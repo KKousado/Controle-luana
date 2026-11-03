@@ -37,7 +37,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ error, onRetry }) =>
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">
               {error.includes('Invalid login credentials')
-                ? 'Verifique se o usuário luana@docesdaluana.app foi cadastrado no painel Supabase com a mesma senha definida nas configurações.'
+                ? 'Não foi possível validar a sessão. Tente novamente ou entre com uma conta autorizada.'
                 : error}
             </p>
             {onRetry && (
