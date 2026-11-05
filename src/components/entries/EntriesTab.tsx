@@ -57,34 +57,37 @@ export const EntriesTab: React.FC = () => {
     carregarLancamentos();
   }, [user, filtroTipo, filtroStatus]);
 
-  // Excluir com suporte a Desfazer (Toast Undo)
-  const handleDelete = async (id: string) => {
-    const itemToDelete = lancamentos.find((l) => l.id === id);
-    if (!itemToDelete) return;
+  // Excluir imediatamente para que o dashboard reflita o valor removido.
+  const handleDelete = async (ids: string[]) => {
+    const itemsToDelete = lancamentos.filter((item) => ids.includes(item.id));
+    if (itemsToDelete.length === 0) return;
 
-    // Otimista: remover da lista imediatamente
-    setLancamentos((prev) => prev.filter((l) => l.id !== id));
+    setLancamentos((prev) => prev.filter((item) => !ids.includes(item.id)));
 
-    let undone = false;
+    const { error } = await supabase.from('lancamentos').delete().in('id', ids).eq('user_id', user?.id);
+    if (error) {
+      setLancamentos((prev) => [...itemsToDelete, ...prev]);
+      showToast({ message: 'Erro ao excluir lançamento(s).', type: 'error' });
+      return;
+    }
+
     showToast({
-      message: 'Lançamento excluído.',
+      message: itemsToDelete.length === 1 ? 'Lançamento excluído.' : `${itemsToDelete.length} lançamentos excluídos.`,
       type: 'info',
       action: {
         label: 'Desfazer',
         onClick: async () => {
-          undone = true;
-          setLancamentos((prev) => [itemToDelete, ...prev]);
+          const rowsToRestore = itemsToDelete.map(({ categoria, ...item }) => item);
+          const { error: restoreError } = await supabase.from('lancamentos').insert(rowsToRestore);
+          if (restoreError) {
+            showToast({ message: 'Não foi possível desfazer a exclusão.', type: 'error' });
+            return;
+          }
+          setLancamentos((prev) => [...itemsToDelete, ...prev]);
         },
       },
       duration: 4500,
     });
-
-    // Se não desfeito após 4.5s, deletar do banco
-    setTimeout(async () => {
-      if (!undone) {
-        await supabase.from('lancamentos').delete().eq('id', id);
-      }
-    }, 4600);
   };
 
   const handleToggleStatus = async (item: Lancamento) => {
