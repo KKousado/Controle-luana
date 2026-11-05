@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Lancamento } from '../../types';
 import { formatarMoeda, formatarDataExtenso, formatarData } from '../../lib/utils';
 import { CategoryIcon } from '../common/CategoryIcon';
-import { Trash2, Edit3, CheckCircle2, Clock, MoreVertical, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { Trash2, Edit3, CheckCircle2, Clock, MoreVertical } from 'lucide-react';
 
 interface EntryListProps {
   lancamentos: Lancamento[];
   onEdit: (lancamento: Lancamento) => void;
-  onDelete: (id: string) => void;
+  onDelete: (ids: string[]) => void;
   onToggleStatus: (lancamento: Lancamento) => void;
 }
 
@@ -18,6 +18,15 @@ export const EntryList: React.FC<EntryListProps> = ({
   onToggleStatus,
 }) => {
   const [selectedItemForMenu, setSelectedItemForMenu] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id]
+    );
+  };
+
+  const allSelected = lancamentos.length > 0 && selectedIds.length === lancamentos.length;
 
   if (lancamentos.length === 0) {
     return (
@@ -47,6 +56,30 @@ export const EntryList: React.FC<EntryListProps> = ({
 
   return (
     <div className="space-y-5">
+      <div className="flex items-center justify-between px-1">
+        <label className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={() => setSelectedIds(allSelected ? [] : lancamentos.map((item) => item.id))}
+            className="h-4 w-4 accent-[#007AFF]"
+            aria-label="Selecionar todos os lançamentos"
+          />
+          Selecionar todos
+        </label>
+        {selectedIds.length > 0 && (
+          <button
+            onClick={() => {
+              onDelete(selectedIds);
+              setSelectedIds([]);
+            }}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#FF3B30] hover:bg-red-50 dark:hover:bg-red-950/20"
+          >
+            <Trash2 size={14} />
+            Excluir ({selectedIds.length})
+          </button>
+        )}
+      </div>
       {datasOrdenadas.map((dataKey) => {
         const itens = gruposPorData[dataKey];
         const totalDia = itens.reduce((s, i) => {
@@ -76,6 +109,14 @@ export const EntryList: React.FC<EntryListProps> = ({
                     key={item.id}
                     className="p-3.5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-[#2C2C2E]/40 transition-colors relative"
                   >
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={() => toggleSelected(item.id)}
+                      className="mr-3 h-4 w-4 shrink-0 accent-[#007AFF]"
+                      aria-label={`Selecionar ${item.descricao || (isEntrada ? 'Receita' : 'Despesa')}`}
+                    />
+
                     {/* Lado Esquerdo: Ícone + Info */}
                     <div className="flex items-center space-x-3 min-w-0 flex-1">
                       {/* Ícone colorido da Categoria */}
@@ -178,7 +219,7 @@ export const EntryList: React.FC<EntryListProps> = ({
                           <span>Editar</span>
                         </button>
                         <button
-                          onClick={() => onDelete(item.id)}
+                          onClick={() => onDelete([item.id])}
                           className="flex items-center space-x-2 px-3 py-1.5 text-xs font-medium text-[#FF3B30] hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg text-left"
                         >
                           <Trash2 size={13} />
